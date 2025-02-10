@@ -1,0 +1,62 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:first_project/Views/home_page.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class MyController extends GetxController{
+  final username = TextEditingController();
+  final password = TextEditingController();
+  RxBool isVisible = false.obs;
+  @override
+  void onInit(){
+    checkLogin();
+    // Get called when controller is created
+    super.onInit();
+  }
+
+  @override
+  void onReady(){
+    // Get called after widget is rendered on the screen
+    super.onReady();
+  }
+
+  @override
+  void onClose(){
+    //Get called when controller is removed from memory
+    super.onClose();
+  }
+
+
+void Signing() async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: username.text.trim(),
+        password: password.text.trim(),
+      );
+      final user = credential.user;
+      print(user?.uid);
+      if (user != null) {
+        Get.to(() => Dashboard());
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+  }
+
+  // Function to check if the user is already logged in
+  Future<void> checkLogin() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // If the user is logged in, navigate to the Dashboard page
+      Get.off(() => Dashboard());
+    } else {
+      // If the user is not logged in, you can perform actions or show messages
+      // For example:
+      print('No user is currently logged in.');
+    }
+  }
+}
